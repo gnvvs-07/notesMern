@@ -20,7 +20,7 @@ export default function Header() {
   return (
     <>
       <div className="p-3 flex justify-between items-center shadow-md font-semibold text-gray-500 text-2xl">
-        <Link to="/notes">Notes</Link>
+        <Link to="/notes" className="text-sm sm:text-md">Notes</Link>
         <SearchBox
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
