@@ -82,7 +82,13 @@ export default function Home() {
         contentLabel="Add/Edit Note"
         className="bg-white p-4 rounded-md w-[80%] sm:w-[60%] mt-40 mx-auto"
       >
-        <AddEditNotes />
+        <AddEditNotes
+          type={openAddedModal.type}
+          noteData={openAddedModal.data}
+          onClose={() => {
+            setOpenAddedModal({ isShown: false, type: "add", data: null });
+          }}
+        />
       </Modal>
     </div>
   );
