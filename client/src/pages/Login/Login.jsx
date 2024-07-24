@@ -3,7 +3,10 @@ import PasswordInput from "../../components/Input/PasswordInput";
 import { useState } from "react";
 import { validateEmail } from "../../utils/forms";
 import { FaGoogle } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 export default function Login() {
+  // navigation
+  const navigate = useNavigate();
   // use states
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,6 +23,18 @@ export default function Login() {
       return;
     }
     setError("");
+    const res = await fetch("/api/user/signin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      navigate("/notes");
+      console.log(email);
+    }
   };
   return (
     <>
@@ -39,7 +54,10 @@ export default function Login() {
           />
           {error && <p className="text-red-700 text-xs">{error}</p>}
           {/* submit button */}
-          <button className="flex items-center gap-3 uppercase mt-5 p-3 bg-blue-500 rounded-md text-white" type="button">
+          <button
+            className="flex items-center gap-3 uppercase mt-5 p-3 bg-blue-500 rounded-md text-white"
+            type="button"
+          >
             <FaGoogle />
             continue with google
           </button>

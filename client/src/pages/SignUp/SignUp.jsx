@@ -4,7 +4,10 @@ import { useRef, useState } from "react";
 import { validateEmail } from "../../utils/forms";
 import pic from "../../notes.png";
 import { FaGoogle } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 export default function SignUp() {
+  // navigation
+  const navigate = useNavigate();
   // use states
   const [name, setName] = useState("");
   const [profilePic, setProfilePic] = useState("");
@@ -29,6 +32,19 @@ export default function SignUp() {
       return;
     }
     setError("");
+    // backend integration
+    const res = await fetch("/api/user/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password }),
+    });
+    const data = await res.json();
+    if (data.success === false) {
+      setError(data.message);
+    }
+    if (res.ok) {
+      navigate("/login");
+    }
   };
   // image input handlers
   const handleImageClick = () => {
@@ -48,10 +64,12 @@ export default function SignUp() {
   return (
     <>
       <div className="border border-gray-500 m-3 rounded-lg">
-        <h2 className="font-semibold text-center my-5 text-blue-500">Register</h2>
+        <h2 className="font-semibold text-center my-5 text-blue-500">
+          Register
+        </h2>
         <form onSubmit={handleSubmit} className="flex flex-col items-center">
           <img
-            src={profilePic||pic}
+            src={profilePic || pic}
             alt="upload profile picture"
             onClick={handleImageClick}
             className="cursor-pointer w-10 h-10 rounded-full object-cover mb-5"
@@ -82,7 +100,10 @@ export default function SignUp() {
           />
           {error && <p className="text-red-700 text-xs">{error}</p>}
           {/* submit button */}
-          <button className="flex items-center gap-3 uppercase mt-5 p-3 bg-blue-500 rounded-md text-white" type="button">
+          <button
+            className="flex items-center gap-3 uppercase mt-5 p-3 bg-blue-500 rounded-md text-white"
+            type="button"
+          >
             <FaGoogle />
             continue with google
           </button>
