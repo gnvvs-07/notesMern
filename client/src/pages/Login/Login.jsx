@@ -4,6 +4,13 @@ import { useState } from "react";
 import { validateEmail } from "../../utils/forms";
 import { FaGoogle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  loginFailure,
+  loginStart,
+  loginSuccess,
+} from "../../redux/user/userSlice.js";
+
 export default function Login() {
   // navigation
   const navigate = useNavigate();
@@ -11,31 +18,43 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const { error_redux } = useSelector((state) => state.user);
+  // dispatch
+  const dispatch = useDispatch();
+
   // submit function
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateEmail(email)) {
       setError("Please enter a valid email address");
-      return;
+      return dispatch(loginFailure("Please enter a valid email"));
     }
     if (!password) {
       setError("Please enter a password");
-      return;
+      return dispatch(loginFailure("Please enter a valid password"));
     }
-    setError("");
-    const res = await fetch("/api/user/signin", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      navigate("/notes");
-      console.log(email);
+    try {
+      dispatch(loginStart());
+      setError("");
+      const res = await fetch("/api/user/signin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        dispatch(loginSuccess(data));
+        navigate("/notes");
+      } else {
+        dispatch(loginFailure(data.message));
+      }
+    } catch (error) {
+      dispatch(loginFailure(error.message));
     }
   };
+
   return (
     <>
       <div className="border border-gray-500 m-3 rounded-lg">
@@ -53,6 +72,7 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
           />
           {error && <p className="text-red-700 text-xs">{error}</p>}
+          {error_redux && <p className="text-red-700 text-xs">{error_redux}</p>}
           {/* submit button */}
           <button
             className="flex items-center gap-3 uppercase mt-5 p-3 bg-blue-500 rounded-md text-white"
@@ -68,8 +88,8 @@ export default function Login() {
             Login
           </button>
         </form>
-        <div className=" text-right p-3">
-          <span className="text-xs">Dont have an account ? </span>
+        <div className="text-right p-3">
+          <span className="text-xs">Don't have an account? </span>
           <Link to="/register" className="text-xs text-blue-700">
             Create One
           </Link>
