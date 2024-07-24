@@ -3,6 +3,7 @@ import bcryptjs from "bcryptjs";
 import { errorHandler } from "../utils/error.js";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+dotenv.config();
 export const signup = async (req, res, next) => {
   // get user details
   const { name, email, password } = req.body;
@@ -59,7 +60,7 @@ export const signin = async (req, res, next) => {
     const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
-    res.cookie("userToken", { httpOnly: true }).json(others);
+    res.cookie("access_token",token, { httpOnly: true }).json({...others,token});
   } catch (error) {
     next(error);
   }

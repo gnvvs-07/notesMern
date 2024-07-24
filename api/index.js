@@ -2,8 +2,10 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 // routes
 import userRoute from "./routes/auth.route.js";
+import notesRoute from "./routes/notes.route.js"
 // express app
 const app = express();
 // middle wares
@@ -13,6 +15,7 @@ app.use(
     origin: "*",
   })
 );
+app.use(cookieParser());
 // data base connection
 dotenv.config();
 mongoose.connect(process.env.MONGO).then(() => {
@@ -27,7 +30,7 @@ app.get("/api/", (req, res) => {
 });
 // routing
 app.use("/api/user", userRoute);
-
+app.use("/api/notes",notesRoute);
 // error hnalding
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
