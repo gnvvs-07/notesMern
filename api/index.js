@@ -26,7 +26,14 @@ app.get("/api/", (req, res) => {
   });
 });
 // routing
-app.use("/api/user",userRoute)
+app.use("/api/user", userRoute);
+
+// error hnalding
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = err.message || "Something went wrong";
+  res.status(statusCode).json({ success: false, statusCode, message });
+});
 
 // port and server logs
 const PORT = 3000;
