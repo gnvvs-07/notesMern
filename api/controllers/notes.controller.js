@@ -2,10 +2,11 @@ import Notes from "../models/notes.model.js";
 import { errorHandler } from "../utils/error.js";
 
 export const createNote = async (req, res, next) => {
-  if (!req.body.title) {
-    return next(errorHandler(401, "add a title "));
-  }
   const { title, content, tags } = req.body;
+
+  if (!title) {
+    return next(errorHandler(401, "Please add a title"));
+  }
 
   try {
     const newNote = new Notes({
@@ -22,17 +23,17 @@ export const createNote = async (req, res, next) => {
   }
 };
 
-export const edit = async (req, res, next) => {
+export const editNote = async (req, res, next) => {
   try {
-    const { notesId, userId } = req.params;
+    const { noteId, userId } = req.params;
 
     // Check if the user is authorized to edit the note
     if (req.user.id !== userId) {
-      return next(new Error("User not authorized to edit this note"));
+      return next(errorHandler(403, "User not authorized to edit this note"));
     }
 
     const updatedNote = await Notes.findByIdAndUpdate(
-      notesId,
+      noteId,
       { $set: req.body },
       { new: true }
     );
@@ -42,6 +43,26 @@ export const edit = async (req, res, next) => {
     }
 
     res.status(200).json(updatedNote);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const allNotes = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+
+    // Check if the user is authorized to fetch the notes
+    if (req.user.id !== userId) {
+      return next(
+        errorHandler(403, "User not authorized to fetch these notes")
+      );
+    }
+
+    // Fetch only the notes that belong to the user
+    const userNotes = await Notes.find({ user: userId });
+
+    res.status(200).json(userNotes);
   } catch (error) {
     next(error);
   }
