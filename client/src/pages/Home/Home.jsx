@@ -64,6 +64,23 @@ export default function Home() {
       console.error("Error searching notes:", error);
     }
   };
+  const handlePinNote = async (noteId, isPinned) => {
+    try {
+      const res = await fetch(`/api/notes/edit/${noteId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ isPinned: !isPinned }),
+      });
+
+      if (!res.ok) throw new Error("Failed to pin/unpin note");
+
+      await getAllNotes(); // Refresh the list of notes
+    } catch (error) {
+      console.error("Error pinning/unpinning note:", error);
+    }
+  };
 
   return (
     <div className="p-3">
@@ -86,7 +103,7 @@ export default function Home() {
                 });
               }}
               onDelete={() => handleDeleteNote(item._id)}
-              onPinNote={() => {}}
+              onPinNote={() => handlePinNote(item._id,item.isPinned)}
             />
           ))
         ) : (
