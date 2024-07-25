@@ -8,7 +8,7 @@ export default function NoteCard({
   tags,
   isPinned,
   onEdit,
-  onDelete,
+  onDelete, // Add this prop
   onPinNote,
 }) {
   return (
@@ -16,7 +16,7 @@ export default function NoteCard({
       <div className="flex justify-between shadow-lg items-center mb-3">
         <div className="flex flex-col">
           <h1 className="uppercase text-sm">{title}</h1>
-          <p className="text-xs text-red-500">{new Date(date).toLocaleDateString()}</p>
+          <p className="text-xs text-red-500">{date}</p>
         </div>
         <CiMapPin
           className={isPinned ? "text-teal-500" : "text-gray-500"}
@@ -27,14 +27,14 @@ export default function NoteCard({
         {content?.slice(0, 60)}
       </p>
       <p className="bg-blue-200 w-fit p-1 text-xs text-black font-bold rounded-xl px-3">
-        {tags.map((item) => `#${item}`).join(", ")}
+        {tags.map((item) => `#${item}`)}
       </p>
       <div className="flex items-center justify-between mt-2">
         <MdEditNote className="cursor-pointer" onClick={onEdit} />
         <div className="flex items-start">
           <MdDeleteOutline
             className="text-red-500 cursor-pointer"
-            onClick={onDelete}
+            onClick={onDelete} // Handle delete
           />
         </div>
       </div>

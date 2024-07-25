@@ -5,7 +5,7 @@ export const createNote = async (req, res, next) => {
   const { title, content, tags } = req.body;
 
   if (!title) {
-    return next(errorHandler(401, "Please add a title"));
+    return next(errorHandler(400, "Please add a title")); // Use 400 Bad Request
   }
 
   try {
@@ -63,10 +63,12 @@ export const deleteNote = async (req, res, next) => {
   try {
     const { noteId } = req.params;
 
+    // Check if the note exists and belongs to the user
     const deletedNote = await Notes.findOneAndDelete({
       _id: noteId,
       user: req.user.id,
     });
+
     if (!deletedNote) {
       return res
         .status(404)
