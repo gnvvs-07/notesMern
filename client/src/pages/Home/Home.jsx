@@ -4,6 +4,7 @@ import Modal from "react-modal";
 import { IoAddCircleOutline } from "react-icons/io5";
 import NoteCard from "../../components/Cards/NoteCard";
 import AddEditNotes from "./AddEditNotes";
+import Header from "../../components/Header/Header";
 
 export default function Home() {
   const [openAddedModal, setOpenAddedModal] = useState({
@@ -11,7 +12,7 @@ export default function Home() {
     type: "add",
     data: null,
   });
-
+  const [isSearch, setIsSearch] = useState(false);
   const [allNotes, setAllNotes] = useState([]);
   const { currentUser } = useSelector((state) => state.user);
 
@@ -21,6 +22,7 @@ export default function Home() {
       if (!res.ok) throw new Error("Failed to fetch notes");
       const data = await res.json();
       setAllNotes(data);
+      setIsSearch(false);
     } catch (error) {
       console.error("Error fetching notes:", error);
     }
@@ -40,7 +42,7 @@ export default function Home() {
   const handleDeleteNote = async (noteId) => {
     try {
       const res = await fetch(`/api/notes/delete/${noteId}`, {
-        method: "DELETE"
+        method: "DELETE",
       });
 
       if (!res.ok) throw new Error("Failed to delete note");
@@ -51,8 +53,21 @@ export default function Home() {
     }
   };
 
+  const onSearchNote = async (query) => {
+    try {
+      const res = await fetch(`/api/notes/search?query=${encodeURIComponent(query)}`);
+      if (!res.ok) throw new Error("Failed to search notes");
+      const data = await res.json();
+      setAllNotes(data.notes);
+      setIsSearch(true);
+    } catch (error) {
+      console.error("Error searching notes:", error);
+    }
+  };
+
   return (
     <div className="p-3">
+      <Header onSearchNote={onSearchNote} />
       <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {allNotes.length ? (
           allNotes.map((item) => (

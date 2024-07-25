@@ -1,26 +1,27 @@
-import { RxCross1 } from "react-icons/rx";
-import { CiSearch } from "react-icons/ci";
+import React from "react";
 
-export default function SearchBox({
-  value,
-  onChange,
-  handleSearch,
-  onClearSearch,
-}) {
+export default function SearchBox({ value, onChange, onClearSearch, handleSearch }) {
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter") {
+      handleSearch();
+    }
+  };
+
   return (
-    <div className="flex items-center border p-2 border-gray-400 rounded-md text-sm w-1/2 justify-between bg-gray-50">
+    <div className="relative text-sm w-1/2">
       <input
         type="text"
-        placeholder="search note"
         value={value}
         onChange={onChange}
-        className="outline-none text-gray-700 flex-grow bg-gray-50 font-semibold"
+        onKeyPress={handleKeyPress}
+        className="p-2 border rounded-md"
+        placeholder="Search notes..."
       />
-      {/* if value exists, the cross appears, otherwise not */}
       {value && (
-        <RxCross1 onClick={onClearSearch} className="cursor-pointer ml-2 text-red-500" />
+        <button onClick={onClearSearch} className="absolute right-0 top-0 mt-2 mr-2">
+          Clear
+        </button>
       )}
-      <CiSearch onClick={handleSearch} className="cursor-pointer ml-2 text-blue-500" />
     </div>
   );
 }
