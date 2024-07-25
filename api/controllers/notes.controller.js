@@ -25,21 +25,19 @@ export const createNote = async (req, res, next) => {
 
 export const editNote = async (req, res, next) => {
   try {
-    const { noteId, userId } = req.params;
+    const { noteId } = req.params;
 
-    // Check if the user is authorized to edit the note
-    if (req.user.id !== userId) {
-      return next(errorHandler(403, "User not authorized to edit this note"));
-    }
-
-    const updatedNote = await Notes.findByIdAndUpdate(
-      noteId,
+    // Check if the note exists and belongs to the user
+    const updatedNote = await Notes.findOneAndUpdate(
+      { _id: noteId, user: req.user.id },
       { $set: req.body },
       { new: true }
     );
 
     if (!updatedNote) {
-      return res.status(404).json({ message: "Note not found" });
+      return res
+        .status(404)
+        .json({ message: "Note not found or not authorized to edit" });
     }
 
     res.status(200).json(updatedNote);
@@ -52,13 +50,6 @@ export const allNotes = async (req, res, next) => {
   try {
     const { userId } = req.params;
 
-    // Check if the user is authorized to fetch the notes
-    if (req.user.id !== userId) {
-      return next(
-        errorHandler(403, "User not authorized to fetch these notes")
-      );
-    }
-
     // Fetch only the notes that belong to the user
     const userNotes = await Notes.find({ user: userId });
 
@@ -70,7 +61,18 @@ export const allNotes = async (req, res, next) => {
 
 export const deleteNote = async (req, res, next) => {
   try {
-    await Notes.findByIdAndDelete(req.params.noteId);
+    const { noteId } = req.params;
+
+    const deletedNote = await Notes.findOneAndDelete({
+      _id: noteId,
+      user: req.user.id,
+    });
+    if (!deletedNote) {
+      return res
+        .status(404)
+        .json({ message: "Note not found or not authorized to delete" });
+    }
+
     res.status(200).json({ message: "Note deleted successfully" });
   } catch (error) {
     next(error);
