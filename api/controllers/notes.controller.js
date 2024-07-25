@@ -67,3 +67,12 @@ export const allNotes = async (req, res, next) => {
     next(error);
   }
 };
+
+export const deleteNote = async (req, res, next) => {
+  try {
+    await Notes.findByIdAndDelete(req.params.noteId);
+    res.status(200).json({ message: "Note deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
