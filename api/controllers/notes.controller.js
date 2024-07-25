@@ -80,3 +80,35 @@ export const deleteNote = async (req, res, next) => {
     next(error);
   }
 };
+
+export const searchNote = async (req, res, next) => {
+  const userId = req.user.id;
+  const { query } = req.query;
+
+  try {
+    // Ensure query is defined
+    if (!query) {
+      return res.status(400).json({
+        error: true,
+        message: "Query parameter is missing"
+      });
+    }
+
+    const matchingNotes = await Notes.find({
+      user: userId,
+      $or: [
+        { title: { $regex: new RegExp(query, "i") } },
+        { content: { $regex: new RegExp(query, "i") } }
+      ]
+    });
+
+    return res.json({
+      error: false,
+      notes: matchingNotes,
+      message: "Notes search found"
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
